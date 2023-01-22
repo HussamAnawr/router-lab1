@@ -26,6 +26,10 @@ export const action = async ({ request, params }) => {
     },
     body: JSON.stringify(event),
   })
+
+  if (respone.status === 422) {
+    return respone
+  }
   if (!respone.ok) {
     throw json(
       { message: 'Could not add the new event' },

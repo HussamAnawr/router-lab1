@@ -1,9 +1,10 @@
-import { Form } from 'react-router-dom'
+import { Form, useActionData } from 'react-router-dom'
 import { useNavigate, useNavigation } from 'react-router-dom'
 
 import classes from './EventForm.module.css'
 
 function EventForm({ method, event }) {
+  const data = useActionData()
   const navigatation = useNavigation()
   const navigate = useNavigate()
   const isSubmitting = navigatation.state === 'submitting'
@@ -13,6 +14,13 @@ function EventForm({ method, event }) {
 
   return (
     <Form method={method} className={classes.form}>
+      {data && data.errors && (
+        <ul>
+          {Object.values(data.errors).map((err) => (
+            <li key={err}>{err}</li>
+          ))}
+        </ul>
+      )}
       <p>
         <label htmlFor="title">Title</label>
         <input
