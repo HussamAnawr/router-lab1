@@ -1,4 +1,4 @@
-import { Form, useActionData } from 'react-router-dom'
+import { Form, useActionData, redirect, json } from 'react-router-dom'
 import { useNavigate, useNavigation } from 'react-router-dom'
 
 import classes from './EventForm.module.css'
@@ -72,3 +72,41 @@ function EventForm({ method, event }) {
 }
 
 export default EventForm
+
+export const action = async ({ request, params }) => {
+  const method = request.method
+
+  let url = 'http://127.0.0.1:8080/events/'
+  if (method === 'PATCH') {
+    const eventId = params.eventId
+    url = 'http://127.0.0.1:8080/events/' + eventId
+  }
+
+  const data = await request.formData()
+  const event = {
+    title: data.get('title'),
+    image: data.get('image'),
+    date: data.get('date'),
+    description: data.get('description'),
+  }
+
+  const respone = await fetch(url, {
+    method: method,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(event),
+  })
+
+  if (respone.status === 422) {
+    return respone
+  }
+
+  if (!respone.ok) {
+    throw json({ message: 'Could not edit events' }, { status: respone.status })
+  } else {
+    return method === 'POST'
+      ? redirect('/events')
+      : redirect('/events/' + params.eventId)
+  }
+}
